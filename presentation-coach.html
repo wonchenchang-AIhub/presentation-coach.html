@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>簡報製作與問答預演｜提示詞工具</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;700&family=Noto+Sans+TC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Variables ───────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f2f7;
+  --bg2:#ffffff;
+  --bg3:#e8ecf4;
+  --surface:#ffffff;
+  --surface-2:#f7f8fc;
+  --border:rgba(0,0,0,0.08);
+  --border-hover:rgba(0,0,0,0.18);
+  --text:#1a1f2e;
+  --text-muted:#4a5270;
+  --text-dim:#8891a8;
+  --accent:#4f46e5;
+  --accent-dark:#4338ca;
+  --accent-glow:rgba(79,70,229,0.12);
+  --orange:#ea580c;
+  --orange-dim:rgba(234,88,12,0.08);
+  --orange-border:rgba(234,88,12,0.2);
+  --green:#059669;
+  --green-dim:rgba(5,150,105,0.08);
+  --phase-a:#4f46e5;
+  --phase-b:#059669;
+  --phase-c:#ea580c;
+  --font-serif:'Noto Serif TC',serif;
+  --font-sans:'Noto Sans TC',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --radius:10px;
+  --radius-lg:16px;
+  --transition:0.18s cubic-bezier(0.4,0,0.2,1);
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  font-size:15px;
+  line-height:1.65;
+  min-height:100vh;
+}
+
+/* ── Background ─────────────────────────────────────────────── */
+.bg-grid{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(79,70,229,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,70,229,0.04) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.bg-glow{
+  position:fixed;top:-200px;left:50%;transform:translateX(-50%);
+  width:900px;height:500px;border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse,rgba(79,70,229,0.06) 0%,transparent 70%);
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+header{
+  position:relative;z-index:10;
+  background:linear-gradient(180deg,#1e2538 0%,#252e47 100%);
+  border-bottom:1px solid rgba(0,0,0,0.10);
+  padding:44px 32px 32px;
+  text-align:center;
+}
+.eyebrow{
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--text-dim);margin-bottom:16px;
+}
+.hero-title{
+  font-family:var(--font-serif);font-size:clamp(26px,4vw,42px);
+  font-weight:700;color:#f9fafb;line-height:1.18;
+  margin-bottom:10px;letter-spacing:-0.01em;
+}
+.hero-title span{color:var(--accent)}
+.hero-sub{
+  font-size:13px;color:var(--text-muted);margin-bottom:20px;
+  font-family:var(--font-mono);
+}
+.phase-pills{
+  display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
+  margin-bottom:6px;
+}
+.phase-pill{
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  padding:4px 12px;border-radius:20px;letter-spacing:0.08em;
+  border:1px solid;
+}
+.pill-a{background:rgba(79,70,229,0.10);border-color:rgba(79,70,229,0.3);color:#818cf8}
+.pill-b{background:rgba(5,150,105,0.10);border-color:rgba(5,150,105,0.28);color:#34d399}
+.pill-c{background:rgba(234,88,12,0.10);border-color:rgba(234,88,12,0.28);color:#fb923c}
+
+/* ── Layout ──────────────────────────────────────────────────── */
+.container{
+  position:relative;z-index:1;
+  max-width:1100px;margin:0 auto;padding:40px 24px 80px;
+}
+
+/* ── Flow Overview ───────────────────────────────────────────── */
+.flow-bar{
+  display:flex;align-items:center;gap:0;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:16px 20px;
+  margin-bottom:40px;overflow-x:auto;
+  box-shadow:0 2px 8px rgba(0,0,0,0.06);
+}
+.flow-step{
+  display:flex;align-items:center;gap:8px;flex-shrink:0;
+  cursor:pointer;padding:6px 10px;border-radius:8px;
+  transition:background var(--transition);
+}
+.flow-step:hover{background:rgba(0,0,0,0.04)}
+.flow-num{
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  width:22px;height:22px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid;flex-shrink:0;
+}
+.flow-label{font-size:12px;color:var(--text-muted);white-space:nowrap}
+.flow-arrow{color:var(--text-dim);font-size:11px;margin:0 2px;flex-shrink:0}
+.flow-step.phase-a .flow-num{background:rgba(79,70,229,0.10);border-color:rgba(79,70,229,0.35);color:var(--phase-a)}
+.flow-step.phase-b .flow-num{background:rgba(5,150,105,0.10);border-color:rgba(5,150,105,0.32);color:var(--phase-b)}
+.flow-step.phase-c .flow-num{background:rgba(234,88,12,0.10);border-color:rgba(234,88,12,0.32);color:var(--phase-c)}
+
+/* ── Phase Section ───────────────────────────────────────────── */
+.phase-section{margin-bottom:40px}
+.phase-header{
+  display:flex;align-items:center;gap:12px;
+  margin-bottom:20px;padding-bottom:12px;
+  border-bottom:1px solid var(--border);
+}
+.phase-tag{
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  padding:4px 10px;border-radius:20px;letter-spacing:0.08em;
+  border:1px solid;
+}
+.phase-title{font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--text)}
+.phase-desc{font-size:12px;color:var(--text-muted);margin-left:auto;font-family:var(--font-mono)}
+
+/* ── Module Grid ─────────────────────────────────────────────── */
+.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+
+/* ── Module Card ─────────────────────────────────────────────── */
+.module-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+  transition:border-color var(--transition),box-shadow var(--transition);
+  display:flex;flex-direction:column;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.module-card:hover{
+  border-color:var(--border-hover);
+  box-shadow:0 6px 24px rgba(0,0,0,0.10);
+}
+.card-head{
+  padding:18px 20px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;gap:12px;
+}
+.card-num{
+  font-family:var(--font-mono);font-size:11px;font-weight:500;
+  padding:4px 9px;border-radius:6px;flex-shrink:0;margin-top:1px;
+}
+.card-title{font-family:var(--font-serif);font-size:15px;font-weight:600;color:var(--text);line-height:1.4}
+.card-subtitle{font-size:12px;color:var(--text-muted);margin-top:4px;font-family:var(--font-mono)}
+
+/* Phase colour variants */
+.phase-a .card-num{background:rgba(79,70,229,0.08);color:var(--phase-a);border:1px solid rgba(79,70,229,0.22)}
+.phase-a .module-card{border-left:3px solid rgba(79,70,229,0.35)}
+.phase-a .module-card:hover{border-left-color:var(--phase-a)}
+.phase-b .card-num{background:rgba(5,150,105,0.08);color:var(--phase-b);border:1px solid rgba(5,150,105,0.22)}
+.phase-b .module-card{border-left:3px solid rgba(5,150,105,0.30)}
+.phase-b .module-card:hover{border-left-color:var(--phase-b)}
+.phase-c .card-num{background:rgba(234,88,12,0.08);color:var(--phase-c);border:1px solid rgba(234,88,12,0.22)}
+.phase-c .module-card{border-left:3px solid rgba(234,88,12,0.30)}
+.phase-c .module-card:hover{border-left-color:var(--phase-c)}
+
+/* ── Variable Fields ─────────────────────────────────────────── */
+.card-fields{padding:14px 20px;display:flex;flex-direction:column;gap:10px}
+.field-group{display:flex;flex-direction:column;gap:5px}
+.field-label{
+  font-family:var(--font-mono);font-size:10px;font-weight:500;
+  color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;
+}
+.field-input{
+  background:var(--bg3);border:1px solid var(--border);border-radius:8px;
+  padding:8px 12px;font-family:var(--font-sans);font-size:13px;
+  color:var(--text);outline:none;resize:vertical;min-height:36px;
+  transition:border-color var(--transition),background var(--transition);
+  width:100%;
+}
+.field-input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(79,70,229,0.08)}
+.field-input::placeholder{color:var(--text-dim)}
+.field-input.textarea{min-height:64px;resize:vertical}
+
+/* ── Card Footer ─────────────────────────────────────────────── */
+.card-foot{
+  padding:12px 20px 16px;margin-top:auto;
+  display:flex;gap:8px;align-items:center;
+}
+.btn-preview{
+  background:none;border:1px solid var(--border);border-radius:8px;
+  padding:7px 14px;font-family:var(--font-mono);font-size:11px;
+  color:var(--text-muted);cursor:pointer;
+  transition:all var(--transition);flex-shrink:0;
+}
+.btn-preview:hover{border-color:var(--border-hover);color:var(--text)}
+.btn-copy{
+  flex:1;border:none;border-radius:8px;
+  padding:8px 16px;font-family:var(--font-sans);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all var(--transition);
+}
+.phase-a .btn-copy{background:var(--phase-a);color:#fff}
+.phase-a .btn-copy:hover{background:#4338ca;box-shadow:0 0 20px rgba(79,70,229,0.28)}
+.phase-b .btn-copy{background:var(--phase-b);color:#fff}
+.phase-b .btn-copy:hover{background:#047857;box-shadow:0 0 20px rgba(5,150,105,0.25)}
+.phase-c .btn-copy{background:var(--phase-c);color:#fff}
+.phase-c .btn-copy:hover{background:#c2410c;box-shadow:0 0 20px rgba(234,88,12,0.25)}
+.btn-copy.copied{opacity:0.7}
+
+/* ── Preview Modal ───────────────────────────────────────────── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.45);backdrop-filter:blur(4px);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:#fff;border:1px solid var(--border-hover);
+  border-radius:var(--radius-lg);max-width:720px;width:100%;
+  max-height:80vh;display:flex;flex-direction:column;
+  box-shadow:0 24px 64px rgba(0,0,0,0.2);
+}
+.modal-head{
+  padding:18px 22px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.modal-num{font-family:var(--font-mono);font-size:11px;padding:3px 9px;border-radius:6px}
+.modal-title{font-family:var(--font-serif);font-size:16px;font-weight:600;flex:1;color:var(--text)}
+.modal-close{
+  background:none;border:none;color:var(--text-dim);font-size:20px;
+  cursor:pointer;padding:4px;line-height:1;
+  transition:color var(--transition);
+}
+.modal-close:hover{color:var(--text)}
+.modal-body{padding:20px 22px;overflow-y:auto;flex:1;background:var(--bg3);border-radius:0}
+.modal-prompt{
+  font-family:var(--font-mono);font-size:12.5px;line-height:1.75;
+  color:var(--text-muted);white-space:pre-wrap;word-break:break-word;
+}
+.modal-foot{
+  padding:14px 22px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;background:#fff;
+  border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+.modal-btn-copy{
+  border:none;border-radius:8px;padding:9px 22px;
+  font-family:var(--font-sans);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all var(--transition);
+}
+
+/* ── Usage Guide ─────────────────────────────────────────────── */
+.guide-section{
+  margin-top:48px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:28px 32px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.guide-title{
+  font-family:var(--font-serif);font-size:16px;font-weight:600;
+  margin-bottom:20px;color:var(--text);
+}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.guide-item{display:flex;gap:12px;align-items:flex-start}
+.guide-icon{
+  font-size:18px;flex-shrink:0;margin-top:2px;
+  width:32px;text-align:center;
+}
+.guide-text strong{display:block;font-size:13px;color:var(--text);margin-bottom:3px}
+.guide-text span{font-size:12px;color:var(--text-muted)}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+footer{
+  position:relative;z-index:1;text-align:center;
+  padding:20px;border-top:1px solid var(--border);
+  font-family:var(--font-mono);font-size:10px;
+  color:var(--text-dim);letter-spacing:0.1em;
+}
+
+/* ── Toast ───────────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:28px;right:28px;z-index:300;
+  background:#fff;border:1px solid rgba(5,150,105,0.3);
+  border-radius:10px;padding:12px 18px;
+  font-family:var(--font-mono);font-size:12px;color:var(--green);
+  box-shadow:0 4px 16px rgba(0,0,0,0.12);
+  transform:translateY(12px);opacity:0;
+  transition:all 0.22s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── M09 generator card — full-width spotlight ───────────────── */
+#card-M09{grid-column:1/-1}
+#card-M09 .card-head{
+  background:linear-gradient(135deg,rgba(5,150,105,0.06) 0%,rgba(79,70,229,0.04) 100%);
+  border-bottom:2px solid rgba(5,150,105,0.18);
+}
+#card-M09 .card-num{
+  background:rgba(5,150,105,0.10);color:#059669;
+  border:1px solid rgba(5,150,105,0.28);font-size:12px;padding:5px 12px;
+}
+#card-M09 .card-title{font-size:17px}
+#card-M09 .field-input.textarea{min-height:80px}
+#card-M09 .card-fields{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:12px;padding:18px 20px;
+}
+#card-M09 .field-group:nth-child(3),
+#card-M09 .field-group:nth-child(4),
+#card-M09 .field-group:nth-child(5){grid-column:1/-1}
+#card-M09 .btn-copy{
+  background:linear-gradient(135deg,#059669,#047857);
+  color:#fff;font-size:14px;padding:11px 20px;
+  box-shadow:0 2px 12px rgba(5,150,105,0.20);
+}
+#card-M09 .btn-copy:hover{
+  background:linear-gradient(135deg,#047857,#065f46);
+  box-shadow:0 4px 20px rgba(5,150,105,0.32);
+}
+.generator-note{
+  font-size:12px;color:var(--text-muted);
+  background:rgba(5,150,105,0.06);border:1px solid rgba(5,150,105,0.14);
+  border-radius:8px;padding:10px 14px;margin:0 20px 14px;
+  font-family:var(--font-mono);line-height:1.6;
+}
+.generator-note strong{color:#059669;font-weight:500}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width:640px){
+  header{padding:28px 16px 22px}
+  .container{padding:24px 14px 60px}
+  .flow-bar{padding:12px 14px}
+  .module-grid{grid-template-columns:1fr}
+  .guide-grid{grid-template-columns:1fr}
+  .phase-desc{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<!-- ── Header ── -->
+<header>
+  <p class="eyebrow">PROMPT HUB · 張萬權 &nbsp;|&nbsp; wonchen.chang@gmail.com</p>
+  <h1 class="hero-title">簡報製作與<span>問答預演</span></h1>
+  <p class="hero-sub">Presentation Coaching · 提示詞模組工具 · v1.1</p>
+  <div class="phase-pills">
+    <span class="phase-pill pill-a">M01–M04 &nbsp;規劃與架構</span>
+    <span class="phase-pill pill-b">M05–M09 &nbsp;內容與視覺</span>
+    <span class="phase-pill pill-c">M10–M11 &nbsp;問答預演</span>
+  </div>
+</header>
+
+<!-- ── Main ── -->
+<div class="container">
+
+  <!-- Flow overview bar -->
+  <div class="flow-bar" id="flowBar"></div>
+
+  <!-- Phase A -->
+  <div class="phase-section phase-a" id="phaseA">
+    <div class="phase-header">
+      <span class="phase-tag pill-a">第一階段</span>
+      <span class="phase-title">規劃與架構</span>
+      <span class="phase-desc">先想清楚再動手</span>
+    </div>
+    <div class="module-grid" id="gridA"></div>
+  </div>
+
+  <!-- Phase B -->
+  <div class="phase-section phase-b" id="phaseB">
+    <div class="phase-header">
+      <span class="phase-tag pill-b">第二階段</span>
+      <span class="phase-title">內容與視覺</span>
+      <span class="phase-desc">逐頁落地製作，直到產出可下載的簡報檔</span>
+    </div>
+    <div class="module-grid" id="gridB"></div>
+  </div>
+
+  <!-- Phase C -->
+  <div class="phase-section phase-c" id="phaseC">
+    <div class="phase-header">
+      <span class="phase-tag pill-c">第三階段</span>
+      <span class="phase-title">問答預演</span>
+      <span class="phase-desc">上場前的壓力測試（M10–M11）</span>
+    </div>
+    <div class="module-grid" id="gridC"></div>
+  </div>
+
+  <!-- Usage Guide -->
+  <div class="guide-section">
+    <p class="guide-title">使用說明</p>
+    <div class="guide-grid">
+      <div class="guide-item">
+        <div class="guide-icon">①</div>
+        <div class="guide-text">
+          <strong>填入變數</strong>
+          <span>在每個模組的欄位填入你的簡報主題、受眾等資訊</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-icon">②</div>
+        <div class="guide-text">
+          <strong>複製提示詞</strong>
+          <span>點「複製」取得客製化好的完整提示詞，直接貼入 AI</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-icon">③</div>
+        <div class="guide-text">
+          <strong>接力使用</strong>
+          <span>M01 的輸出貼入 M02，依序串接，形成完整工作流</span>
+        </div>
+      </div>
+      <div class="guide-item">
+        <div class="guide-icon">④</div>
+        <div class="guide-text">
+          <strong>獨立啟動</strong>
+          <span>也可單獨使用任一模組，不一定要從頭開始</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- Preview Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-num" id="modalNum"></span>
+      <span class="modal-title" id="modalTitle"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <pre class="modal-prompt" id="modalPrompt"></pre>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn-copy" id="modalCopyBtn" onclick="copyFromModal()">複製提示詞</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✓ 已複製到剪貼簿</div>
+
+<footer>PROMPT HUB · 張萬權 · 簡報製作與問答預演提示詞模組 · v1.1</footer>
+
+<script>
+/* ── Module Data ──────────────────────────────────────────────── */
+const MODULES = [
+  {
+    id:'M01', phase:'A',
+    title:'受眾與目標分析',
+    subtitle:'Audience Map',
+    fields:[
+      {key:'topic', label:'簡報主題', placeholder:'例：AI 工具導入提案', type:'input'},
+      {key:'audience', label:'受眾（職位、背景）', placeholder:'例：採購委員會，5 人，財務導向', type:'input'},
+      {key:'goal', label:'希望對方做什麼決定', placeholder:'例：核准試行預算 NT$50 萬', type:'input'},
+    ],
+    template: (v) => `你現在是一位資深簡報策略顧問，請用引導式問答協助我分析這場簡報的受眾。
+
+${v.topic ? `我的簡報主題是：${v.topic}\n` : ''}${v.audience ? `初步受眾：${v.audience}\n` : ''}${v.goal ? `希望達成的目標：${v.goal}\n` : ''}
+請依序問我以下問題，每次只問一個，等我回答後再繼續：
+
+1. 這場簡報是要對誰說？（職位、背景、人數）
+2. 他們對這個主題的熟悉程度如何？（完全不懂 / 略知 / 熟悉 / 專家）
+3. 他們最在意的事情是什麼？（成本、風險、效率、創新、面子……）
+4. 你希望他們看完之後「做什麼」或「決定什麼」？
+5. 他們對你這次報告的預期態度是什麼？（支持 / 中立 / 可能質疑）
+
+收集完上述資訊後，輸出：
+- 【受眾畫像摘要】：一段 100 字以內的受眾描述
+- 【溝通策略建議】：語氣、用詞深度、應強調的訴求方向
+- 【潛在阻力提示】：預測可能的反對情緒或疑慮點`
+  },
+  {
+    id:'M02', phase:'A',
+    title:'時間與場景規劃',
+    subtitle:'Time & Context',
+    fields:[
+      {key:'topic', label:'簡報主題', placeholder:'例：年度 AI 導入計畫', type:'input'},
+      {key:'audience_summary', label:'受眾摘要（貼上 M01 輸出）', placeholder:'貼入 M01 產出的受眾畫像摘要', type:'textarea'},
+      {key:'duration', label:'預計時間', placeholder:'例：30 分鐘，含 10 分鐘 Q&A', type:'input'},
+      {key:'scene', label:'場景類型', placeholder:'實體 / 線上視訊 / 錄影 / 混合', type:'input'},
+    ],
+    template: (v) => `請根據以下資訊，協助我規劃簡報的時間與場景配置：
+
+簡報主題：${v.topic || '【填入】'}
+受眾：${v.audience_summary || '【貼上 M01 受眾畫像摘要】'}
+預計時間：${v.duration || '【X 分鐘】'}
+場景類型：${v.scene || '【實體 / 線上視訊 / 非同步錄影 / 混合】'}
+
+請輸出：
+1. 時間分配建議（開場 / 主體各段 / 結尾 / Q&A）
+2. 每段最多允許的頁數估算
+3. 場景注意事項（視訊需注意的節奏、實體的互動設計等）
+4. 一個常見時間管理陷阱提醒`
+  },
+  {
+    id:'M03', phase:'A',
+    title:'核心訊息與架構設計',
+    subtitle:'Structure Blueprint',
+    fields:[
+      {key:'topic', label:'簡報主題', placeholder:'例：燃料電池 BOP 市場進入策略', type:'input'},
+      {key:'audience', label:'受眾', placeholder:'例：能源業高階主管，不熟悉技術細節', type:'input'},
+      {key:'action', label:'希望對方做的決定／行動', placeholder:'例：核准啟動市場調研，預算 NT$150 萬', type:'input'},
+    ],
+    template: (v) => `你是一位擅長金字塔原則與 MECE 架構的簡報策略師。
+
+我的簡報主題是：${v.topic || '【填入】'}
+受眾是：${v.audience || '【填入】'}
+希望他們做的決定／行動是：${v.action || '【填入】'}
+
+請幫我完成以下工作，逐步進行，每步驟確認後再繼續：
+
+步驟一：提煉核心訊息
+- 寫出「這場簡報最重要的一句話」（30 字以內）
+- 寫出支撐這句話的三個最強論點
+
+步驟二：設計簡報架構
+- 建議採用哪種結構框架（問題框架 / 提案框架 / 教學框架 / 故事框架），並說明原因
+- 列出段落標題（建議 4–6 個段落）
+- 每個段落的核心功能是什麼（建立背景 / 製造張力 / 給洞察 / 推動行動）
+
+步驟三：邏輯完整性確認
+- 這個架構有沒有跳躍或缺漏？
+- 受眾最可能在哪個段落產生疑問？`
+  },
+  {
+    id:'M04', phase:'A',
+    title:'敘事流程設計',
+    subtitle:'Story Arc',
+    fields:[
+      {key:'structure', label:'簡報架構（貼上 M03 段落標題）', placeholder:'貼入 M03 輸出的段落標題與說明', type:'textarea'},
+    ],
+    template: (v) => `請把我的簡報架構轉化為具有說服力的敘事弧線。
+
+我的簡報架構如下：
+${v.structure || '【貼上 M03 輸出的段落標題與說明】'}
+
+請使用以下敘事框架，重新設計流程：
+鉤子（抓注意）→ 問題（痛點或現況）→ 後果（不解決會怎樣）→ 觀點轉折（我的洞見）→ 解法（我的方案）→ 效益（解決後的世界）→ 行動呼籲
+
+輸出：
+1. 每個敘事節點的一句話說明（這段要讓受眾感受到什麼）
+2. 開場鉤子的三個選項（數據型 / 故事型 / 問句型）
+3. 結尾行動呼籲的建議句型
+4. 整體「情緒曲線」建議（什麼時候要讓人緊張、什麼時候讓人放鬆）`
+  },
+  {
+    id:'M05', phase:'B',
+    title:'資訊圖表規劃',
+    subtitle:'Data Viz Design',
+    fields:[
+      {key:'structure', label:'簡報段落架構（貼上 M03／M04 輸出）', placeholder:'貼入段落標題與資料摘要', type:'textarea'},
+    ],
+    template: (v) => `你是一位資料視覺化顧問，請協助我決定哪些頁面需要圖表，以及用什麼類型。
+
+我的簡報段落架構如下：
+${v.structure || '【貼上 M03／M04 輸出】'}
+
+請逐段分析：
+1. 這段有哪些資訊適合圖像化？（數據比較 / 流程 / 結構 / 趨勢 / 關係）
+2. 建議使用的圖表類型是什麼？（長條圖 / 折線 / 圓餅 / 矩陣 / 流程圖 / 示意圖）
+3. 這張圖的「視覺重點」是什麼？（哪一個數字或關係要讓人一眼看到）
+4. 如果不做圖，最好的文字替代方案是什麼？
+
+最後整理一份「圖表使用清單」，列出哪頁用圖、用什麼圖、重點是什麼。`
+  },
+  {
+    id:'M06', phase:'B',
+    title:'每頁重點訴求設計',
+    subtitle:'Slide Messaging',
+    fields:[
+      {key:'structure', label:'段落架構與頁數分配（貼上 M03 輸出）', placeholder:'例：開場1頁、背景2頁、方案3頁、效益2頁、結尾1頁', type:'textarea'},
+    ],
+    template: (v) => `請幫我為簡報的每一頁設計「單一重點訴求」。
+
+我的簡報架構如下：
+${v.structure || '【貼上 M03 輸出的段落標題與頁數分配】'}
+
+每一頁請輸出：
+- 頁面標題（讓人一眼知道這頁在說什麼）
+- 這頁的核心訴求（這頁最重要的一句話，放在標題下或作為結論句）
+- 內容要點（2–3 個，各不超過 15 字）
+- 這頁對受眾的「情緒目標」（讓他們感到好奇 / 擔心 / 信任 / 安心 / 期待行動）
+- 這頁的過渡語（結尾一句，自然引導到下一頁）
+
+原則：每頁只說一件事，讓人不需要讀說明文字就能理解重點。`
+  },
+  {
+    id:'M07', phase:'B',
+    title:'版面風格設計',
+    subtitle:'Visual Style Guide',
+    fields:[
+      {key:'context', label:'簡報情境', placeholder:'例：向董事會提案 / 對客戶做技術說明', type:'input'},
+      {key:'audience_summary', label:'受眾特性（貼上 M01 輸出）', placeholder:'貼入受眾畫像摘要', type:'textarea'},
+      {key:'vibe', label:'整體氣氛期望', placeholder:'例：專業可信 / 輕鬆親切 / 創新前瞻', type:'input'},
+    ],
+    template: (v) => `你是一位視覺設計顧問，請根據我的簡報情境，建議版面設計風格。
+
+簡報情境：${v.context || '【描述，例如：向董事會提案 / 對客戶做產品說明】'}
+受眾特性：${v.audience_summary || '【貼上 M01 受眾畫像摘要】'}
+整體氣氛期望：${v.vibe || '【例如：專業可信 / 輕鬆親切 / 創新前瞻 / 嚴謹保守】'}
+
+請提供：
+1. 配色建議（主色、輔色、強調色，說明情感聯想）
+2. 字型風格建議（標題字感 / 內文字感）
+3. 版面佈局原則（資訊密度、留白比例、視覺重心配置）
+4. 每種頁面類型的版面建議：
+   - 封面頁
+   - 段落標題頁
+   - 數據圖表頁
+   - 重點訴求頁
+   - 結尾行動頁
+5. 應避免的視覺錯誤（例如：顏色過多、文字擠滿、子彈點濫用）`
+  },
+  {
+    id:'M08', phase:'B',
+    title:'講稿撰寫',
+    subtitle:'Speaker Script',
+    fields:[
+      {key:'slides', label:'每頁標題與重點（貼上 M06 輸出）', placeholder:'貼入各頁標題、核心訴求、要點', type:'textarea'},
+      {key:'audience', label:'受眾', placeholder:'例：製造副總及財務主管', type:'input'},
+      {key:'time_per_slide', label:'每頁預計說話時間', placeholder:'例：90 秒', type:'input'},
+    ],
+    template: (v) => `請根據我的簡報頁面內容，幫我撰寫口語化的說話稿。
+
+簡報每頁的標題與重點如下：
+${v.slides || '【貼上 M06 輸出】'}
+
+受眾：${v.audience || '【填入】'}
+預計每頁說話時間：約 ${v.time_per_slide || '【X】'} 秒
+
+每頁講稿格式：
+- 開場句（引起這頁的注意或承接上一頁）
+- 核心說明（把重點用口語說清楚，像在跟人說話，不要念投影片）
+- 關鍵一句（這頁最重要的話，讓受眾記住）
+- 過渡句（自然帶到下一頁）
+
+語氣要求：口語、有節奏感、不唸稿、像有經驗的人在說話。
+遇到數據時，說明數字背後的意義，不只是唸出數字。`
+  },
+  {
+    id:'M09', phase:'B',
+    title:'完整簡報製作指令',
+    subtitle:'Slide Deck Generator',
+    fields:[
+      {key:'topic',    label:'簡報主題',                         placeholder:'例：AI 工具導入三年計畫提案',               type:'input'},
+      {key:'audience', label:'受眾描述（貼上 M01 受眾畫像摘要）', placeholder:'貼入受眾畫像：職稱、關注點、決策態度',       type:'textarea'},
+      {key:'structure',label:'段落架構與每頁訴求（貼上 M06 輸出）',placeholder:'貼入各頁標題、核心訴求、要點（M06 輸出）',  type:'textarea'},
+      {key:'script',   label:'講稿重點（貼上 M08 輸出）',         placeholder:'貼入各頁講稿的關鍵一句與核心說明（M08 輸出）',type:'textarea'},
+      {key:'style',    label:'版面風格（貼上 M07 建議）',          placeholder:'貼入配色、字型、版面方向（M07 輸出）',        type:'textarea'},
+      {key:'tool',     label:'使用工具',                          placeholder:'ChatGPT / Claude / Gamma / Canva AI（選一個）',type:'input'},
+      {key:'slides_n', label:'頁數',                              placeholder:'例：12 頁',                                  type:'input'},
+    ],
+    template: (v) => `你是一位專業簡報設計師，請根據以下完整規格，為我製作一份可直接呈現的${v.slides_n ? v.slides_n : 'X 頁'}簡報。
+
+━━━━━━━━━━━━━━━━━━━━━━
+【簡報基本資訊】
+━━━━━━━━━━━━━━━━━━━━━━
+主題：${v.topic || '【填入】'}
+頁數：${v.slides_n || '【X 頁】'}
+使用工具：${v.tool || '【填入】'}
+
+━━━━━━━━━━━━━━━━━━━━━━
+【受眾與溝通目標】
+━━━━━━━━━━━━━━━━━━━━━━
+${v.audience || '【貼上 M01 受眾畫像摘要】'}
+
+━━━━━━━━━━━━━━━━━━━━━━
+【各頁內容規格】（依此製作每一張投影片）
+━━━━━━━━━━━━━━━━━━━━━━
+${v.structure || '【貼上 M06 每頁重點訴求輸出，包含：頁面標題、核心訴求、要點 2–3 項】'}
+
+━━━━━━━━━━━━━━━━━━━━━━
+【各頁傳達重點】（可作為備註或視覺強調依據）
+━━━━━━━━━━━━━━━━━━━━━━
+${v.script || '【貼上 M08 講稿輸出中各頁的「關鍵一句」與「核心說明」】'}
+
+━━━━━━━━━━━━━━━━━━━━━━
+【視覺設計規格】
+━━━━━━━━━━━━━━━━━━━━━━
+${v.style || '【貼上 M07 版面風格建議，包含：配色方案、字型方向、各頁版面類型】'}
+
+━━━━━━━━━━━━━━━━━━━━━━
+【製作規則】
+━━━━━━━━━━━━━━━━━━━━━━
+1. 每頁只表達一個核心訊息，不堆砌條列
+2. 標題要讓人一眼抓到重點（不超過 15 字）
+3. 數據頁面：突出關鍵數字，圖表搭配一句結論
+4. 封面頁：主標題 + 副標 + 日期／單位
+5. 每頁備註欄填入該頁講稿的「關鍵一句」，方便報告時提醒
+6. 整份視覺風格一致（配色、字型、排版邏輯統一）
+7. 最後輸出可下載的簡報檔案（.pptx 或 PDF）
+
+━━━━━━━━━━━━━━━━━━━━━━
+【交付格式】
+━━━━━━━━━━━━━━━━━━━━━━
+- 主要輸出：.pptx 檔（可在 PowerPoint / Keynote / Google Slides 編輯）
+- 備用輸出：PDF 版（供直接傳閱）
+- 如工具限制無法輸出 .pptx，請輸出每頁的完整設計說明，讓我能自行在 PowerPoint 重建
+
+開始製作，完成後提供下載連結。`
+  },
+  {
+    id:'M10', phase:'C',
+    title:'問題預測、邏輯檢核與標準答案庫',
+    subtitle:'Q&A Prediction',
+    fields:[
+      {key:'summary', label:'簡報摘要', placeholder:'用 3–5 句話描述你的簡報核心內容', type:'textarea'},
+      {key:'audience_style', label:'受眾風格', placeholder:'例：重視數字、偏好保守、常挑戰假設', type:'input'},
+      {key:'proposal', label:'提案方向（用於標準答案庫）', placeholder:'例：AI 工具導入，預算 NT$250 萬，三年 ROI 116%', type:'textarea'},
+    ],
+    template: (v) => `【09-A 問題預測】
+
+以下是我的簡報摘要，請預測受眾在 Q&A 最可能問的問題。
+
+簡報摘要：${v.summary || '【貼上】'}
+受眾風格：${v.audience_style || '【描述，例如：重視數字、偏好保守、常挑戰假設】'}
+
+預測角度：
+1. 數字來源（這個數據怎麼來的）
+2. 風險（萬一失敗怎麼辦）
+3. 資源（要花多少錢、多少人力）
+4. 比較（為什麼不用別的方式）
+5. 時程（什麼時候能看到結果）
+6. 前提（你做了哪些假設）
+
+請列出 10 個問題，並標出其中最危險的 3 個（最容易讓人答不好的）。
+對這 3 個危險問題，各提供一個回答架構：先給立場 → 補充理由 → 建立信心。
+
+──────────────────────────────────────────────
+
+【09-B 邏輯檢核】
+
+請幫我找出這份簡報裡邏輯最薄弱的地方。
+
+簡報內容：${v.summary || '【貼上完整大綱或內容】'}
+
+請找出：
+1. 假設不夠充分的地方（說「大家都知道」但沒有證據）
+2. 跳結論的地方（從 A 直接跳到 C，沒有說 B）
+3. 數字或來源不夠扎實的地方
+4. 可能有明顯反例的論點
+
+每個問題格式：是什麼問題 → 受眾可能怎麼問 → 建議怎麼補強
+
+──────────────────────────────────────────────
+
+【09-C 基本命題答案庫】
+
+以下是我的提案方向，請幫我準備四類標準問題的回答架構：
+
+提案方向：${v.proposal || '【描述】'}
+
+問題一：「為什麼選這個方案，不用別的方式？」
+問題二：「有沒有更省錢的做法？」
+問題三：「這個風險你們考慮過嗎？」
+問題四：「時程可以更快嗎？」
+
+每個問題的回答架構：
+1. 直接給立場（不要說「這是個好問題」）
+2. 說明考慮過的替代方案與捨棄原因
+3. 結尾建立信心
+
+格式：每個問題的回答控制在 3 句話以內。`
+  },
+  {
+    id:'M11', phase:'C',
+    title:'壓力測試問答預演',
+    subtitle:'Mock Q&A Drill',
+    fields:[
+      {key:'summary', label:'簡報摘要', placeholder:'用 3–5 句話描述你的簡報核心內容', type:'textarea'},
+      {key:'context', label:'這次報告的背景', placeholder:'例：向董事會提案新業務方向', type:'input'},
+    ],
+    template: (v) => `請扮演一個挑剔、習慣追問細節的主管，對我的簡報進行壓力測試。
+
+我的簡報摘要：${v.summary || '【貼上】'}
+這次報告的背景：${v.context || '【描述，例如：向董事會提案新業務方向】'}
+
+規則：
+1. 每次只問一個問題，等我回答後再繼續追問
+2. 問題針對這四個方向：數字與來源、假設與前提、風險與替代方案、執行可行性
+3. 如果我的回答不夠具體，直接說「這樣說不夠清楚，再具體一點」
+4. 如果我說「這個之後再確認」，追問「為什麼現在不知道」
+5. 五輪問答後，給我一個總評：哪些地方回答得好、哪些地方需要再準備
+
+現在請開始，問第一個問題。`
+  },
+];
+
+/* ── Phase colour helpers ──────────────────────────────────────── */
+const PHASE_COLOR = {
+  A: { accent:'#4f46e5', dimBg:'rgba(79,70,229,0.08)',  border:'rgba(79,70,229,0.25)' },
+  B: { accent:'#059669', dimBg:'rgba(5,150,105,0.08)',  border:'rgba(5,150,105,0.25)' },
+  C: { accent:'#ea580c', dimBg:'rgba(234,88,12,0.08)',  border:'rgba(234,88,12,0.25)' },
+};
+
+/* ── Build flow bar ────────────────────────────────────────────── */
+const flowBar = document.getElementById('flowBar');
+MODULES.forEach((m, i) => {
+  const pc = PHASE_COLOR[m.phase];
+  const step = document.createElement('div');
+  step.className = `flow-step phase-${m.phase.toLowerCase()}`;
+  step.innerHTML = `<div class="flow-num">${i+1}</div><div class="flow-label">${m.id}</div>`;
+  step.onclick = () => document.getElementById('card-'+m.id).scrollIntoView({behavior:'smooth',block:'center'});
+  flowBar.appendChild(step);
+  if(i < MODULES.length-1){
+    const arr = document.createElement('div');
+    arr.className = 'flow-arrow'; arr.textContent = '›';
+    flowBar.appendChild(arr);
+  }
+});
+
+/* ── Build cards ────────────────────────────────────────────────── */
+function buildCard(m) {
+  const pc = PHASE_COLOR[m.phase];
+  const fieldsHtml = m.fields.map(f => `
+    <div class="field-group">
+      <label class="field-label">${f.label}</label>
+      ${f.type === 'textarea'
+        ? `<textarea class="field-input textarea" id="field-${m.id}-${f.key}" placeholder="${f.placeholder}" rows="3"></textarea>`
+        : `<input type="text" class="field-input" id="field-${m.id}-${f.key}" placeholder="${f.placeholder}">`
+      }
+    </div>
+  `).join('');
+
+  const card = document.createElement('div');
+  card.className = 'module-card';
+  card.id = 'card-'+m.id;
+  const noteHtml = m.id === 'M09' ? `
+    <div class="generator-note">
+      <strong>✦ 整合模組</strong>　將 M01 + M06 + M07 + M08 的輸出依序貼入下方欄位，即可產出一份完整的簡報製作指令，交給 ChatGPT / Claude / Gamma 直接生成可下載的簡報檔。
+    </div>` : '';
+
+  card.innerHTML = `
+    <div class="card-head">
+      <div class="card-num">${m.id}</div>
+      <div>
+        <div class="card-title">${m.title}</div>
+        <div class="card-subtitle">${m.subtitle}</div>
+      </div>
+    </div>
+    ${noteHtml}
+    <div class="card-fields">${fieldsHtml}</div>
+    <div class="card-foot">
+      <button class="btn-preview" onclick="openModal('${m.id}')">預覽</button>
+      <button class="btn-copy" id="copybtn-${m.id}" onclick="copyPrompt('${m.id}')">複製提示詞</button>
+    </div>
+  `;
+  return card;
+}
+
+function getValues(m) {
+  const v = {};
+  m.fields.forEach(f => {
+    const el = document.getElementById(`field-${m.id}-${f.key}`);
+    v[f.key] = el ? el.value.trim() : '';
+  });
+  return v;
+}
+
+function getPrompt(id) {
+  const m = MODULES.find(x => x.id === id);
+  if(!m) return '';
+  return m.template(getValues(m));
+}
+
+/* ── Render cards into phase grids ─────────────────────────────── */
+const gridA = document.getElementById('gridA');
+const gridB = document.getElementById('gridB');
+const gridC = document.getElementById('gridC');
+MODULES.forEach(m => {
+  const card = buildCard(m);
+  if(m.phase==='A') gridA.appendChild(card);
+  else if(m.phase==='B') gridB.appendChild(card);
+  else gridC.appendChild(card);
+});
+
+/* ── Copy prompt ────────────────────────────────────────────────── */
+function copyPrompt(id) {
+  const text = getPrompt(id);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copybtn-'+id);
+    const orig = btn.textContent;
+    btn.textContent = '✓ 已複製！';
+    btn.classList.add('copied');
+    showToast();
+    setTimeout(()=>{ btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+/* ── Modal ──────────────────────────────────────────────────────── */
+let currentModalId = null;
+
+function openModal(id) {
+  currentModalId = id;
+  const m = MODULES.find(x => x.id === id);
+  const pc = PHASE_COLOR[m.phase];
+  document.getElementById('modalNum').textContent = m.id;
+  document.getElementById('modalNum').style.background = pc.dimBg;
+  document.getElementById('modalNum').style.color = pc.accent;
+  document.getElementById('modalNum').style.border = `1px solid ${pc.border}`;
+  document.getElementById('modalTitle').textContent = m.title;
+  document.getElementById('modalPrompt').textContent = getPrompt(id);
+  const copyBtn = document.getElementById('modalCopyBtn');
+  copyBtn.style.background = pc.accent;
+  copyBtn.style.color = '#fff';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentModalId = null;
+}
+
+function copyFromModal() {
+  if(!currentModalId) return;
+  const text = getPrompt(currentModalId);
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('modalCopyBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ 已複製！';
+    showToast();
+    setTimeout(()=>{ btn.textContent = orig; }, 2000);
+  });
+}
+
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeModal();
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+/* ── Toast ──────────────────────────────────────────────────────── */
+let toastTimer;
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+</script>
+</body>
+</html>

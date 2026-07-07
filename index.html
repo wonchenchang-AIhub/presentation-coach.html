@@ -69,10 +69,18 @@ header{
   border-bottom:1px solid rgba(0,0,0,0.10);
   padding:0 32px;
   height:64px;
-  display:flex;align-items:center;justify-content:flex-start;gap:32px;
+  display:flex;align-items:center;justify-content:space-between;
 }
 .header-left{
-  display:flex;align-items:baseline;gap:14px;flex-shrink:0;
+  display:flex;align-items:baseline;gap:10px;z-index:1;
+}
+.header-center{
+  position:absolute;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;
+}
+.header-right{
+  display:flex;align-items:center;justify-content:flex-end;gap:8px;z-index:1;
 }
 .eyebrow{
   font-family:var(--font-mono);font-size:10px;font-weight:500;
@@ -346,10 +354,10 @@ footer{
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media(max-width:640px){
-  header{padding:0 14px;height:auto;min-height:52px;flex-wrap:wrap;gap:8px;padding-top:10px;padding-bottom:10px}
-  .header-left{gap:8px}
+  header{grid-template-columns:1fr;height:auto;padding:10px 14px;gap:6px}
+  .header-center{justify-content:flex-start}
+  .header-right{justify-content:flex-start;flex-wrap:wrap}
   .hero-title{font-size:16px}
-  .phase-pills{gap:6px}
   .phase-pill{font-size:9px;padding:3px 8px}
   .container{padding:16px 14px 60px}
   .flow-bar{padding:12px 14px}
@@ -368,10 +376,12 @@ footer{
 <header>
   <div class="header-left">
     <p class="eyebrow">PROMPT HUB · 張萬權</p>
-    <h1 class="hero-title">簡報製作與<span>問答預演</span></h1>
-    <p class="eyebrow" style="color:var(--text-dim);opacity:0.6">v2.0</p>
+    <p class="eyebrow" style="opacity:0.45">v2.0</p>
   </div>
-  <div class="phase-pills">
+  <div class="header-center">
+    <h1 class="hero-title">簡報製作與<span>問答預演</span></h1>
+  </div>
+  <div class="header-right phase-pills">
     <span class="phase-pill pill-a">M01–M05 &nbsp;策略規劃</span>
     <span class="phase-pill pill-b">M06–M10 &nbsp;內容製作</span>
     <span class="phase-pill pill-c">M11–M12 &nbsp;問答預演</span>
